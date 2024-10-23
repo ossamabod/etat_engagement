@@ -1,0 +1,112 @@
+/* Google Font Import - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+:root {
+  /* ===== Colors ===== */
+  --body-color: #e4e9f7;
+  --sidebar-color: #fff;
+  --primary-color: #2979F2;   /* Vibrant blue */
+  --primary-color-light: #E8F0FE; /* Very light blue */
+  --toggle-color: #ddd;
+  --text-color: #333; /* Dark gray for good contrast */
+
+  /* ====== Transition ====== */
+  --tran-03: all 0.2s ease;
+  --tran-04: all 0.3s ease;
+  --tran-05: all 0.3s ease;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--body-color);
+  transition: var(--tran-05);
+}
+
+.employe-form-container {
+  position: absolute;
+  top: 0;
+  left: 250px; /* Adjust for the sidebar width */
+  height: 100vh;
+  width: calc(100% - 250px);
+  background-color: var(--body-color);
+  transition: var(--tran-05);
+  z-index: 1;
+  padding: 20px; /* Added padding for better form spacing */
+  overflow-y: auto; /* Scroll if content overflows */
+}
+
+.sidebar.close ~ .employe-form-container {
+  left: 88px; /* Adjust for the smaller sidebar width when closed */
+  width: calc(100% - 88px);
+}
+
+.employe-form-container h2 {
+  color: var(--text-color);
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-weight: 500; /* Slightly less bold */
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.form-control {
+  background-color: var(--primary-color-light);
+  border: 1px solid var(--primary-color-light);
+  border-radius: 6px; /* Slightly rounder corners */
+  padding: 10px;
+  transition: border-color 0.3s ease; /* Add a smooth transition */
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(41, 121, 242, 0.3); /* Soft blue glow */
+  outline: none; /* Remove default outline */
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border: none; /* Modern buttons often don't have borders */
+  padding: 10px 20px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  color: white;
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+.btn-primary:hover {
+  background-color: darken(var(--primary-color), 10%);
+}
+
+.alert-success {
+  background-color: lighten(var(--primary-color), 40%);
+  color: darken(var(--primary-color), 40%);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.alert-danger {
+  background-color: #f8d7da; /* Light red */
+  color: #721c24; /* Dark red text */
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.submit-button:disabled {
+  background-color: #ced4da; /* Light gray for disabled */
+  cursor: not-allowed;
+}
+
+.text-center {
+  text-align: center;
+}

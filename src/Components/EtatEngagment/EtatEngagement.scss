@@ -1,0 +1,102 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* ===== Colors ===== */
+  --body-color: #e4e9f7;
+  --sidebar-color: #fff;
+  --primary-color: #695cfe;
+  --primary-color-light: #f6f5ff;
+  --toggle-color: #ddd;
+  --text-color: #707070;
+
+  /* ====== Transition ====== */
+  --tran-03: all 0.2s ease;
+  --tran-03: all 0.3s ease;
+  --tran-04: all 0.3s ease;
+  --tran-05: all 0.3s ease;
+}
+
+/* Light mode styles */
+.home-etat {
+  font-family: "Poppins", sans-serif;
+  position: absolute;
+  top: 0;
+  left: 250px; /* Adjust for the sidebar width */
+  height: 100vh;
+  width: calc(100% - 250px); /* Make the width adjust based on sidebar width */
+  background-color: var(--body-color);
+  transition: var(--tran-05);
+  z-index: 1;
+}
+
+.sidebar.close ~ .home-etat {
+  left: 88px;
+  width: calc(100% - 88px); /* Adjust width accordingly */
+}
+
+.home-etat .container {
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+}
+
+.home-etat .text-center {
+  text-align: center;
+}
+
+
+.home-etat .table-etatengagment {
+  margin-top: 20px;
+  background-color: var(--primary-color-light); /* Light background for table */
+  color: var(--text-color);
+}
+
+.home-etat hr {
+  margin: 20px 0;
+  border-color: var(--primary-color); /* Divider color */
+}
+
+.home-etat .footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Dark mode styles */
+body.dark .home-etat {
+  background-color: #242526;
+  color: #ccc;
+}
+
+body.dark .home-etat .container {
+  background-color: #333;
+  color: #fff;
+}
+
+body.dark .home-etat h1, body.dark .home-etat h3 {
+  color: #fff;
+}
+
+body.dark .home-etat .table-etatengagment {
+  background-color: #3a3b3c; /* Dark background for table */
+  color: #ccc;
+}
+
+body.dark .home-etat hr {
+  border-color: #666;
+}
+
+body.dark .home-etat .footer {
+  color: #ccc;
+}
+
+th, td {
+  border: 1px solid #dee2e6;
+  padding: 8px;
+}
+
+body.dark th, body.dark td {
+  border-color: #444;
+}
