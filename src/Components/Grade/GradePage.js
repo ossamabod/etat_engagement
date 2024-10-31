@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -20,6 +21,8 @@ export default function GradePage() {
   const [searchTerm, setSearchTerm] = useState(''); // Search input
   const [page, setPage] = useState(0); // Pagination: current page
   const [rowsPerPage, setRowsPerPage] = useState(8); // Pagination: rows per page
+  const navigate = useNavigate();
+
 
   // Fetch all grades on component mount
   useEffect(() => {
@@ -58,7 +61,9 @@ export default function GradePage() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
+  const handleEdit = (gradeId) => {
+    navigate(`/edit-grade/${gradeId}`);
+  };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0); // Reset to first page
@@ -110,7 +115,7 @@ export default function GradePage() {
                       variant="contained"
                       size="small"
                       sx={{ backgroundColor: 'var(--primary-color)', color: 'var(--sidebar-color)', mr: 1 }}
-                      onClick={() => console.log(`Edit grade with ID: ${grade.id}`)}
+                      onClick={() => handleEdit(grade.id)}
                     >
                       Editer
                     </Button>
@@ -118,7 +123,7 @@ export default function GradePage() {
                       variant="contained"
                       size="small"
                       sx={{ backgroundColor: 'var(--primary-color)', color: 'var(--sidebar-color)' }}
-                      onClick={() => console.log(`Delete grade with ID: ${grade.id}`)}
+                    
                     >
                       Supprimer
                     </Button>

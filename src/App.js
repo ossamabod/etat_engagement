@@ -41,6 +41,8 @@ function App() {
           <Route path="/GradePage" element={<GradePage />} />
           <Route path='/GradeForm' element={<GradeForm/>}/>
           <Route path='/etat-engagement' element={<EtatEngagement data={exampleData} />} />
+          <Route path='/edit-grade/:gradeId' element={<GradeForm/>} />
+
 
           
                     {/* Add more routes as needed */}

@@ -118,64 +118,63 @@ export default function EmployeeForm() {
   const [isChildFormVisible, setIsChildFormVisible] = useState(false);
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false); 
-
-  // Inside your useEffect where you are fetching data
   useEffect(() => {
     if (employeeId) {
+      setIsLoading(true); 
       axios.get(`http://localhost:8080/Employee/${employeeId}`)
         .then(response => {
-          const employeeData = response.data.data;
+          console.log('response:'+response);
+          const { data, success } = response.data;
+          if (success && data) {
+            const employeeData = data.content[0];
+            
+            const formattedDateNaissance = employeeData.dateNaissance
+              ? format(new Date(employeeData.dateNaissance), 'yyyy-MM-dd')
+              : '';
+            const formattedDateEntree = employeeData.dateEntree
+              ? format(new Date(employeeData.dateEntree), 'yyyy-MM-dd')
+              : '';
   
-          // Format the date to 'YYYY-MM-DD' if it's not already in that format
-          const formattedDateNaissance = employeeData.dateNaissance
-            ? format(new Date(employeeData.dateNaissance), 'yyyy-MM-dd')
-            : '';
+            setEmployee({
+              ...employeeData,
+              dateNaissance: formattedDateNaissance,
+              dateEntree: formattedDateEntree,
+              region: employeeData.region || '',
+              province: employeeData.province || '',
+              conjoint: employeeData.conjoint || { nom: '', prenom: '', profession: '' },
+              grade: employeeData.grade || { id: '', libelle: '' },
+            });
   
-          const formattedDateEntree = employeeData.dateEntree
-            ? format(new Date(employeeData.dateEntree), 'yyyy-MM-dd')
-            : '';
+            setIsSpouseFormVisible(employeeData.situationFam !== 'Célibataire');
   
-          setEmployee({
-            ...employeeData,
-            dateNaissance: formattedDateNaissance,
-            dateEntree: formattedDateEntree,
-            region: employeeData.region || '',
-            province: employeeData.province || '',
-            conjoint: employeeData.conjoint || { nom: '', prenom: '', profession: '' },
-            grade: employeeData.grade || { id: '', libelle: '' }, // Set the grade object
-          });
+            if (employeeData.nbEnfants && employeeData.nbEnfants > 0) {
+              const formattedEnfants = (employeeData.enfants || []).map(enfant => ({
+                ...enfant,
+                dateNaissance: enfant.dateNaissance ? format(new Date(enfant.dateNaissance), 'yyyy-MM-dd') : ''
+              }));
+              setChildren(formattedEnfants);
+            } else {
+              setChildren([]);
+            }
   
-          setIsSpouseFormVisible(employeeData.situationFam !== 'Célibataire');
-          
-          // Handling children data
-          if (employeeData.nbEnfants && employeeData.nbEnfants > 0) {
-            const formattedEnfants = employeeData.enfants
-              ? employeeData.enfants.map((enfant) => ({
-                  ...enfant,
-                  // Convert the date to a format if necessary
-                  dateNaissance: enfant.dateNaissance ? new Date(enfant.dateNaissance).toISOString().split('T')[0] : ''
-                }))
-              : Array.from({ length: employeeData.nbEnfants }, () => ({
-                  nom: '',
-                  prenom: '',
-                  sexe: '',
-                  dateNaissance: '',
-                  aCharge: false
-                }));
-          
-            setChildren(formattedEnfants);
           } else {
-            setChildren([]); // Clear the children array if nbEnfants is 0 or not provided
+            console.error('Employee not found or unexpected response:', response.data);
           }
-          
         })
         .catch(error => {
-          console.error('Error fetching employee data:', error);
+          console.error('Error fetching employee data:', error.message);
+          if (error.response) {
+            console.error('Server responded with:', error.response.data);
+          } else if (error.request) {
+            console.error('No response received:', error.request);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false); 
         });
     }
   }, [employeeId]);
-  
-  
+
 
   useEffect(() => {
     async function fetchGrades() {

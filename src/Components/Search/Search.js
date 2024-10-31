@@ -32,7 +32,7 @@ export default function Search() {
       setError(null);
   
       try {
-        const response = await axios.get('http://localhost:8080/Employee/getEmployee', {
+        const response = await axios.get('http://localhost:8080/Employee/searchbycriteria', {
           params: {
             cin: searchTerm,      // Pass CIN from search input
             prenom: '',           // Example values for prenom and nom
