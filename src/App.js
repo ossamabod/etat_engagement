@@ -40,11 +40,8 @@ function App() {
           <Route path="/edit-employee/:employeeId" element={<EmployeForm />} />
           <Route path="/GradePage" element={<GradePage />} />
           <Route path='/GradeForm' element={<GradeForm/>}/>
-          <Route path='/etat-engagement' element={<EtatEngagement data={exampleData} />} />
+          <Route path='/etat-engagement/:employeeId' element={<EtatEngagement/>} />
           <Route path='/edit-grade/:gradeId' element={<GradeForm/>} />
-
-
-          
                     {/* Add more routes as needed */}
         </Routes>
       </div>

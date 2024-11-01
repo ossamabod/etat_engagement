@@ -223,10 +223,40 @@ function GradeForm() {
             Indemnités
           </Typography>
           <TextField
+            label="Indemnité de Fonction"
+            name="indemnites.indemniteFonction"
+            type="number"
+            value={formData.indemnites.indemniteFonction}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            sx={{ input: { backgroundColor: 'white' } }}
+          />
+          <TextField
+            label="Indemnité de Tournee"
+            name="indemnites.indemniteTournee"
+            type="number"
+            value={formData.indemnites.indemniteTournee}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            sx={{ input: { backgroundColor: 'white' } }}
+          />
+           <TextField
             label="Indemnité de Sujection"
             name="indemnites.indemniteSujection"
             type="number"
             value={formData.indemnites.indemniteSujection}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            sx={{ input: { backgroundColor: 'white' } }}
+          />
+           <TextField
+            label="Indemnité de Representation"
+            name="indemnites.indemniteRepresentation"
+            type="number"
+            value={formData.indemnites.indemniteRepresentation}
             onChange={handleChange}
             fullWidth
             margin="normal"
@@ -243,6 +273,36 @@ function GradeForm() {
             name="retenue.rcar"
             type="number"
             value={formData.retenue.rcar}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            sx={{ input: { backgroundColor: 'white' } }}
+          />
+           <TextField
+            label="IGR"
+            name="retenue.igr"
+            type="number"
+            value={formData.retenue.igr}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            sx={{ input: { backgroundColor: 'white' } }}
+          />
+           <TextField
+            label="AMO"
+            name="retenue.amo"
+            type="number"
+            value={formData.retenue.amo}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            sx={{ input: { backgroundColor: 'white' } }}
+          />
+          <TextField
+            label="SM"
+            name="retenue.sm"
+            type="number"
+            value={formData.retenue.sm}
             onChange={handleChange}
             fullWidth
             margin="normal"

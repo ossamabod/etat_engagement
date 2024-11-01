@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Container, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Divider } from '@mui/material';
 import './EtatEngagement.scss';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
+
 
 const EtatEngagement = () => {
   const [employee, setEmployee] = useState(null);
-
+  const { employeeId } = useParams();
+  console.log(employeeId); // This should log the value of employeeId from the URL
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/Employee/1');
+        const response = await axios.get(`http://localhost:8080/Employee/${employeeId}`);
         setEmployee(response.data.data.content[0]); // Access the first element in the array
       } catch (error) {
         console.error('Error fetching employee data:', error);

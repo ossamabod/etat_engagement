@@ -78,7 +78,7 @@ export default function Search() {
     navigate(`/edit-employee/${employeeId}`);
   };
   const handleRowClick = (employeeId) => {
-    navigate(`/etat-engagement`, { state: { employeeId } });
+    navigate(`/etat-engagement/${employeeId}`);
   };
 
   const handleDelete = async (employeeId) => {
