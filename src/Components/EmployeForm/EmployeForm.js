@@ -2,6 +2,9 @@ import React, { useState, useEffect,useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns'; // Import date formatting library
+import { toast, ToastContainer } from 'react-toastify'; // Import toast library
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
+
 
 import {
   TextField,
@@ -12,6 +15,7 @@ import {
   Box,
   Alert,
   CircularProgress,
+  
   Table,
   TableBody,
   TableCell,
@@ -258,7 +262,7 @@ export default function EmployeeForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-
+  
     try {
       const employeeData = {
         ...Employee,
@@ -270,14 +274,14 @@ export default function EmployeeForm() {
         } : null,
         enfants: children
       };
-
+  
       let response;
       if (employeeId) {
         response = await axios.put(`http://localhost:8080/Employee/${employeeId}`, employeeData);
-        setMessage('Employé mis à jour avec succès !');
+        toast.success('Employé mis à jour avec succès !');
       } else {
-        response = await axios.post('http://localhost:8080/Employee/', employeeData);
-        setMessage('Employé créé avec succès !');
+        response = await axios.post('http://localhost:8080/Employee', employeeData);
+        toast.success('Employé créé avec succès !');
         setEmployee({
           cin: '',
           nom: '',
@@ -315,7 +319,7 @@ export default function EmployeeForm() {
         setChildren([]);
       }
     } catch (error) {
-      setMessage('Erreur: Impossible de sauvegarder l\'employé.');
+      toast.error('Erreur: Impossible de sauvegarder l\'employé.');
     } finally {
       setIsLoading(false);
     }
@@ -323,6 +327,7 @@ export default function EmployeeForm() {
 
   return (
     <Container maxWidth="md">
+          <ToastContainer position="bottom-right" /> {/* Add the ToastContainer */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h4" component="h2" align="center" gutterBottom>
           {employeeId ? 'Modifier l\'Employé' : 'Ajouter un Employé'}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import './SideBar.css'; // Import the CSS
+import './SideBar.css';
 import 'boxicons/css/boxicons.min.css';
 import { Link } from 'react-router-dom';
 
@@ -10,7 +10,17 @@ const Sidebar = () => {
   const [isGradeMenuOpen, setIsGradeMenuOpen] = useState(false);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    setIsSidebarOpen((prev) => {
+      const newIsSidebarOpen = !prev;
+
+      // Close sub-menus when the sidebar is closed
+      if (!newIsSidebarOpen) {
+        setIsEmployeMenuOpen(false);
+        setIsGradeMenuOpen(false);
+      }
+
+      return newIsSidebarOpen;
+    });
   };
 
   const toggleDarkMode = () => {
@@ -18,14 +28,13 @@ const Sidebar = () => {
     document.body.classList.toggle("dark", isDarkMode);
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      // Adjust sidebar behavior on window resize (if needed)
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // Handle opening the sidebar if it's closed and a nav link is clicked
+  const handleNavLinkClick = (setMenuOpen) => {
+    if (!isSidebarOpen) {
+      setIsSidebarOpen(true);
+    }
+    setMenuOpen((prev) => !prev);
+  };
 
   return (
     <>
@@ -35,7 +44,6 @@ const Sidebar = () => {
             <span className="image">
               {/* <img src="./logo2.png" alt="logo" />  */}
             </span>
-
             <div className="text logo-text">
               <span className="name">Fiche technique </span>
               {/* <span className="profession">technique</span> */}
@@ -49,7 +57,7 @@ const Sidebar = () => {
           <div className="menu">
             <ul className="menu-links">
               {/* Employé Menu */}
-              <li className={`nav-link ${isEmployeMenuOpen ? 'active' : ''}`} onClick={() => setIsEmployeMenuOpen(!isEmployeMenuOpen)}>
+              <li className={`nav-link ${isEmployeMenuOpen ? 'active' : ''}`} onClick={() => handleNavLinkClick(setIsEmployeMenuOpen)}>
                 <a>
                   <i className='bx bx-user icon'></i>
                   <span className="text nav-text">Gestion Employé</span>
@@ -90,7 +98,7 @@ const Sidebar = () => {
               )}
 
               {/* Grade Menu */}
-              <li className={`nav-link ${isGradeMenuOpen ? 'active' : ''}`} onClick={() => setIsGradeMenuOpen(!isGradeMenuOpen)}>
+              <li className={`nav-link ${isGradeMenuOpen ? 'active' : ''}`} onClick={() => handleNavLinkClick(setIsGradeMenuOpen)}>
                 <a>
                   <i className='bx bx-list-check icon'></i>
                   <span className="text nav-text">Gestion Grades</span>
@@ -102,8 +110,8 @@ const Sidebar = () => {
                   <div className="sub-menu-list">
                     <li className="nav-link">
                       <Link to="/GradeForm">
-                      <i className='bx bx-plus-circle icon'></i>
-                      <span className="text nav-text">Créer Grade</span>
+                        <i className='bx bx-plus-circle icon'></i>
+                        <span className="text nav-text">Créer Grade</span>
                       </Link>
                     </li>
                     <li className="nav-link">
@@ -112,8 +120,6 @@ const Sidebar = () => {
                         <span className="text nav-text">Consulter</span>
                       </Link>
                     </li>
-                  
-                    
                   </div>
                 </ul>
               )}
@@ -125,7 +131,6 @@ const Sidebar = () => {
                   <span className="text nav-text">Etat Engagement</span>
                 </Link>
               </li>
-
             </ul>
           </div>
 
