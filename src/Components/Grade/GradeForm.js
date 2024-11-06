@@ -237,7 +237,7 @@ function GradeForm() {
                 Retour
               </Button>
             )}
-            {step < steps.length - 1 ? (
+            {step < steps.length -1 ? (
               <Button variant="contained" onClick={handleNext}>
                 Suivant
               </Button>

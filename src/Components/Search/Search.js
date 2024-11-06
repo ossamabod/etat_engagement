@@ -12,58 +12,44 @@ export default function Search() {
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
-    totalElements: 0
+    totalElements: 0,
   });
-  
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value);
   };
-  const handlePageChange = (newPage) => {
-    handleSubmit({ page: newPage });  // Update the page number in the request
-  };
-  
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-  
+  const handleSubmit = async (event, pageInt) => {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+    console.log("pageInt in handleSubmit "+ pageInt +"searchTerm "+ searchTerm)
+
     if (searchTerm.trim() !== '') {
       setIsLoading(true);
       setError(null);
-  
+
       try {
-        const response = await axios.get('http://localhost:8080/Employee/searchbycriteria', {
-          params: {
-            cin: searchTerm,      // Pass CIN from search input
-            prenom: '',           // Example values for prenom and nom
-            nom: '',
-            page: 1,              // Initial page value (can be dynamic later)
-            limit: 10,            // Set limit for results per page
-            isDeleted: false,     // Control whether to include deleted entries
-            withPagination: true  // Enable pagination
-          },
+        const pageNumber = pageInt || 0; // Default to 0 if pageInt is undefined
+        const response = await axios.post('http://localhost:8080/Employee/searchbycriteria', {
+          cin: searchTerm,
+          prenom: '',
+          nom: '',
+          page: pageNumber,
+          limit: 5,
+          isDeleted: false,
+          withPagination: true,
         });
-  
-        // Assuming the response structure is like:
-        // {
-        //   data: {
-        //     content: [/* array of employee results */],
-        //     number: 0, // current page (0-based)
-        //     totalPages: 5,
-        //     totalElements: 50
-        //   }
-        // }
-        const { content, totalPages, totalElements } = response.data.data;
-  
-        // Set search results with the employee list
+
+        const { content, totalPages, totalElements, page } = response.data.data;
+
         setSearchResults(content);
-  
-        // Handle pagination state (if you want to track total pages, etc.)
         setPagination({
-          currentPage: response.data.data.number + 1,  // Adjust for 0-based index
-          totalPages,
-          totalElements
+          currentPage:  response.data.data.page.number + 1, // Adjust for 0-based index
+          totalPages :response.data.data.page.totalPages,
+          totalElementsresponse: response.data.data.page.totalElementsresponse,
         });
+        console.log(pagination.totalPages);
       } catch (err) {
         setError(err);
       } finally {
@@ -71,12 +57,18 @@ export default function Search() {
       }
     }
   };
-  
-  
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      console.log("newPage in handlePageChange :"+newPage)
+      handleSubmit(null, newPage); // Adjust for 0-based index
+    }
+  };
 
   const handleEdit = (employeeId) => {
     navigate(`/edit-employee/${employeeId}`);
   };
+
   const handleRowClick = (employeeId) => {
     navigate(`/etat-engagement/${employeeId}`);
   };
@@ -85,8 +77,9 @@ export default function Search() {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
         await axios.delete(`http://localhost:8080/Employee/${employeeId}`);
-        // Remove the deleted employee from the search results
-        setSearchResults((prevResults) => prevResults.filter((result) => result.employeeId !== employeeId));
+        setSearchResults((prevResults) =>
+          prevResults.filter((result) => result.employeeId !== employeeId)
+        );
         console.log('Employee deleted successfully.');
       } catch (error) {
         console.error('Error deleting employee:', error);
@@ -121,7 +114,7 @@ export default function Search() {
       <div className="search-results-container">
         <div className="search-results">
           {isLoading && <p>Chargement des resultats...</p>}
-          {error && <p>Error: {error.message}</p>}
+          {error && <p>Error: {error.message || error}</p>}
 
           {searchResults.length > 0 && (
             <table className="custom-table table-bordered table-hover dt-responsive">
@@ -136,10 +129,16 @@ export default function Search() {
               </thead>
               <tbody>
                 {searchResults.map((result) => (
-                  <tr >
-                    <td key={result.employeeId} onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }}>{result.cin}</td>
-                    <td key={result.employeeId} onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }}>{result.nom}</td>
-                    <td key={result.employeeId} onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }} >{result.prenom}</td>
+                  <tr key={result.employeeId}>
+                    <td onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }}>
+                      {result.cin}
+                    </td>
+                    <td onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }}>
+                      {result.nom}
+                    </td>
+                    <td onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }}>
+                      {result.prenom}
+                    </td>
                     <td>
                       <button className="custom-edit-btn" onClick={() => handleEdit(result.employeeId)}>
                         Editer
@@ -151,14 +150,27 @@ export default function Search() {
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan="4" className="text-center">
-                    {/* Add footer content if needed */}
-                  </td>
-                </tr>
-              </tfoot>
             </table>
+          )}
+
+          {pagination.totalPages > 1 && (
+            <div className="pagination">
+              <button
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+              >
+                Précédent
+              </button>
+              <span>
+                Page {pagination.currentPage} sur {pagination.totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+              >
+                Suivant
+              </button>
+            </div>
           )}
         </div>
       </div>
