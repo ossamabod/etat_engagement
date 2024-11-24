@@ -2,8 +2,11 @@ import React, { useState, useEffect,useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns'; // Import date formatting library
-import { toast, ToastContainer } from 'react-toastify'; // Import toast library
+import { ToastContainer } from 'react-toastify'; // Import toast library
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
+import { fetchEmployee,saveEmployee } from '../../feature/Employee/EmployeeAction';
+import { fetchGrades } from '../../feature/Grade/GradeAction';
+import { useDispatch ,useSelector } from 'react-redux';
 
 
 import {
@@ -24,6 +27,7 @@ import {
   TableRow,
   Paper
 } from '@mui/material';
+import { updateEmployeeField , updateChildren, setEmployee} from '../../feature/Employee/EmployeeSlice';
 
 const regionsData = {
   "Région de Tanger-Tétouan-Al Hoceïma": [
@@ -78,172 +82,194 @@ const regionsData = {
 
 export default function EmployeeForm() {
   
+  const dispatch= useDispatch();
+  const{Employee,isSpouseFormVisible,children,message,grades ,isLoading}= useSelector((state)=>state.Employee);
+
+
   const { employeeId } = useParams(); 
-  const [Employee, setEmployee] = useState({
-    cin: '',
-    nom: '',
-    prenom: '',
-    dateNaissance: '',
-    lieuNaissance: '',
-    sexe: '',
-    adresse: '',
-    ville: '',
-    dateEntree: '',
-    avancement: '',
-    grade: '',
-    diplome: '',
-    affectation: '',
-    nivInst: '',
-    situationFam: '',
-    nbEnfants: 0,
-    codeService: '',
-    adresseFam: '',
-    tel: '',
-    observations: '',
-    age: '',
-    banque: '',
-    numeroCompte: '',
-    budget: '',
-    dp: '',
-    conjoint: {  // Initialize with empty values
-      nom: '',
-      prenom: '',
-      profession: ''
-    },
-    region: '', 
-    province: '',
-    grade:{
-      libelle:''
-    }
-  });
-  const [grades, setGrades] = useState([]); // Array for storing grades from backend
-  const [children, setChildren] = useState([]); // Array for children information
-  const [isSpouseFormVisible, setIsSpouseFormVisible] = useState(false);
-  const [isChildFormVisible, setIsChildFormVisible] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); 
+  // const [Employee, setEmployee] = useState({
+  //   cin: '',
+  //   nom: '',
+  //   prenom: '',
+  //   dateNaissance: '',
+  //   lieuNaissance: '',
+  //   sexe: '',
+  //   adresse: '',
+  //   ville: '',
+  //   dateEntree: '',
+  //   avancement: '',
+  //   grade: '',
+  //   diplome: '',
+  //   affectation: '',
+  //   nivInst: '',
+  //   situationFam: '',
+  //   nbEnfants: 0,
+  //   codeService: '',
+  //   adresseFam: '',
+  //   tel: '',
+  //   observations: '',
+  //   age: '',
+  //   banque: '',
+  //   numeroCompte: '',
+  //   budget: '',
+  //   dp: '',
+  //   conjoint: {  // Initialize with empty values
+  //     nom: '',
+  //     prenom: '',
+  //     profession: ''
+  //   },
+  //   region: '', 
+  //   province: '',
+  //   grade:{
+  //     libelle:''
+  //   }
+  // });
+  // const [grades, setGrades] = useState([]); // Array for storing grades from backend
+  // const [children, setChildren] = useState([]); // Array for children information
+  // const [isSpouseFormVisible, setIsSpouseFormVisible] = useState(false);
+  // const [isChildFormVisible, setIsChildFormVisible] = useState(false);
+  // const [message, setMessage] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false); 
+  
+  // useEffect(() => {
+  //   if (employeeId) {
+  //     setIsLoading(true); 
+  //     axios.get(`http://localhost:8080/Employee/${employeeId}`)
+  //       .then(response => {
+  //         console.log('response:'+response);
+  //         const { data, success } = response.data;
+  //         if (success && data) {
+  //           const employeeData = data.content[0];
+            
+  //           const formattedDateNaissance = employeeData.dateNaissance
+  //             ? format(new Date(employeeData.dateNaissance), 'yyyy-MM-dd')
+  //             : '';
+  //           const formattedDateEntree = employeeData.dateEntree
+  //             ? format(new Date(employeeData.dateEntree), 'yyyy-MM-dd')
+  //             : '';
+  
+  //           setEmployee({
+  //             ...employeeData,
+  //             dateNaissance: formattedDateNaissance,
+  //             dateEntree: formattedDateEntree,
+  //             region: employeeData.region || '',
+  //             province: employeeData.province || '',
+  //             conjoint: employeeData.conjoint || { nom: '', prenom: '', profession: '' },
+  //             grade: employeeData.grade || { id: '', libelle: '' },
+  //           });
+  
+  //           setIsSpouseFormVisible(employeeData.situationFam !== 'Célibataire');
+  
+  //           if (employeeData.nbEnfants && employeeData.nbEnfants > 0) {
+  //             const formattedEnfants = (employeeData.enfants || []).map(enfant => ({
+  //               ...enfant,
+  //               dateNaissance: enfant.dateNaissance ? format(new Date(enfant.dateNaissance), 'yyyy-MM-dd') : ''
+  //             }));
+  //             setChildren(formattedEnfants);
+  //           } else {
+  //             setChildren([]);
+  //           }
+  
+  //         } else {
+  //           console.error('Employee not found or unexpected response:', response.data);
+  //         }
+  //       })
+  //       .catch(error => {
+  //         console.error('Error fetching employee data:', error.message);
+  //         if (error.response) {
+  //           console.error('Server responded with:', error.response.data);
+  //         } else if (error.request) {
+  //           console.error('No response received:', error.request);
+  //         }
+  //       })
+  //       .finally(() => {
+  //         setIsLoading(false); 
+  //       });
+  //   }
+  // }, [employeeId]);
   useEffect(() => {
     if (employeeId) {
-      setIsLoading(true); 
-      axios.get(`http://localhost:8080/Employee/${employeeId}`)
-        .then(response => {
-          console.log('response:'+response);
-          const { data, success } = response.data;
-          if (success && data) {
-            const employeeData = data.content[0];
-            
-            const formattedDateNaissance = employeeData.dateNaissance
-              ? format(new Date(employeeData.dateNaissance), 'yyyy-MM-dd')
-              : '';
-            const formattedDateEntree = employeeData.dateEntree
-              ? format(new Date(employeeData.dateEntree), 'yyyy-MM-dd')
-              : '';
-  
-            setEmployee({
-              ...employeeData,
-              dateNaissance: formattedDateNaissance,
-              dateEntree: formattedDateEntree,
-              region: employeeData.region || '',
-              province: employeeData.province || '',
-              conjoint: employeeData.conjoint || { nom: '', prenom: '', profession: '' },
-              grade: employeeData.grade || { id: '', libelle: '' },
-            });
-  
-            setIsSpouseFormVisible(employeeData.situationFam !== 'Célibataire');
-  
-            if (employeeData.nbEnfants && employeeData.nbEnfants > 0) {
-              const formattedEnfants = (employeeData.enfants || []).map(enfant => ({
-                ...enfant,
-                dateNaissance: enfant.dateNaissance ? format(new Date(enfant.dateNaissance), 'yyyy-MM-dd') : ''
-              }));
-              setChildren(formattedEnfants);
-            } else {
-              setChildren([]);
-            }
-  
-          } else {
-            console.error('Employee not found or unexpected response:', response.data);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching employee data:', error.message);
-          if (error.response) {
-            console.error('Server responded with:', error.response.data);
-          } else if (error.request) {
-            console.error('No response received:', error.request);
-          }
-        })
-        .finally(() => {
-          setIsLoading(false); 
-        });
+      dispatch(fetchEmployee(employeeId));
     }
-  }, [employeeId]);
-
-
-  useEffect(() => {
-    async function fetchGrades() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/grades/getGrade');
-        if (response.data && response.data.success) {
-          setGrades(response.data.data); // response.data.data contains the array of grades
-        } else {
-          console.error('Unexpected response structure:', response);
-        }
-      } catch (error) {
-        console.error('Error fetching grades:', error);
-      }
-    }
-  
-    fetchGrades();
-  }, []);
-  
+    dispatch(fetchGrades());
+  }, [employeeId, dispatch]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-  
-    if (name.startsWith('conjoint')) {
-      const [_, field] = name.split('.'); // Split on the period to get the field name after 'conjoint'
-      setEmployee(prevEmployee => ({
-        ...prevEmployee,
-        conjoint: {
-          ...prevEmployee.conjoint,
-          [field]: value
-        }
-      }));
-    } else {
-      setEmployee(prevEmployee => ({
-        ...prevEmployee,
-        [name]: value
-      }));
-    }
-  
-    if (name === 'situationFam') {
-      setIsSpouseFormVisible(value !== 'Célibataire');
-    }
-  
-    if (name === 'nbEnfants') {
-      const newNbEnfants = parseInt(value) || 0;
-  
-      // Adjust the children array based on the number of children
-      if (newNbEnfants !== children.length) {
-        setChildren(Array(newNbEnfants).fill().map(() => ({
-          nom: '',
-          prenom: '',
-          sexe: '',
-          dateNaissance: '',
-          aCharge: false
-        })));
-      }
-    }
+    dispatch(updateEmployeeField({ field: name, value }));
   };
-  
-
   const handleChildChange = (index, event) => {
     const { name, value } = event.target;
     const updatedChildren = [...children];
     updatedChildren[index][name] = value;
-    setChildren(updatedChildren);
+    dispatch(updateChildren(updatedChildren));
   };
+
+
+
+  // useEffect(() => {
+  //   async function fetchGrades() {
+  //     try {
+  //       const response = await axios.get('http://localhost:8080/api/grades/getGrade');
+  //       if (response.data && response.data.success) {
+  //         setGrades(response.data.data); // response.data.data contains the array of grades
+  //       } else {
+  //         console.error('Unexpected response structure:', response);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching grades:', error);
+  //     }
+  //   }
+  
+  //   fetchGrades();
+  // }, []);
+  
+
+  // const handleChange = (event) => {
+  //   const { name, value } = event.target;
+  
+  //   if (name.startsWith('conjoint')) {
+  //     const [_, field] = name.split('.'); // Split on the period to get the field name after 'conjoint'
+  //     setEmployee(prevEmployee => ({
+  //       ...prevEmployee,
+  //       conjoint: {
+  //         ...prevEmployee.conjoint,
+  //         [field]: value
+  //       }
+  //     }));
+  //   } else {
+  //     setEmployee(prevEmployee => ({
+  //       ...prevEmployee,
+  //       [name]: value
+  //     }));
+  //   }
+  
+  //   if (name === 'situationFam') {
+  //     setIsSpouseFormVisible(value !== 'Célibataire');
+  //   }
+  
+  //   if (name === 'nbEnfants') {
+  //     const newNbEnfants = parseInt(value) || 0;
+  //     // Adjust the children array based on the number of children
+  //     if (newNbEnfants !== children.length) {
+  //       setChildren(Array(newNbEnfants).fill().map(() => ({
+  //         nom: '',
+  //         prenom: '',
+  //         sexe: '',
+  //         dateNaissance: '',
+  //         aCharge: false
+  //       })));
+  //     }
+  //   }
+  // };
+  
+
+  // const handleChildChange = (index, event) => {
+  //   const { name, value } = event.target;
+  //   const updatedChildren = [...children];
+  //   updatedChildren[index][name] = value;
+  //   setChildren(updatedChildren);
+  // };
   const handleRegionChange = (event) => {
     setEmployee(prevEmployee => ({
       ...prevEmployee,
@@ -259,72 +285,87 @@ export default function EmployeeForm() {
     }));
   };
 
-  const handleSubmit = async (event) => {
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setIsLoading(true);
+  
+  //   try {
+  //     const employeeData = {
+  //       ...Employee,
+  //       grade: { id: Employee.grade },
+  //       conjoint: isSpouseFormVisible ? {
+  //         nom: Employee.conjoint?.nom,
+  //         prenom: Employee.conjoint?.prenom,
+  //         profession: Employee.conjoint?.profession
+  //       } : null,
+  //       enfants: children
+  //     };
+  
+  //     let response;
+  //     if (employeeId) {
+  //       response = await axios.put(`http://localhost:8080/Employee/${employeeId}`, employeeData);
+  //       toast.success('Employé mis à jour avec succès !');
+  //     } else {
+  //       response = await axios.post('http://localhost:8080/Employee', employeeData);
+  //       toast.success('Employé créé avec succès !');
+  //       setEmployee({
+  //         cin: '',
+  //         nom: '',
+  //         prenom: '',
+  //         dateNaissance: '',
+  //         lieuNaissance: '',
+  //         sexe: '',
+  //         adresse: '',
+  //         ville: '',
+  //         dateEntree: '',
+  //         avancement: '',
+  //         grade: '',
+  //         diplome: '',
+  //         affectation: '',
+  //         nivInst: '',
+  //         situationFam: 'Célibataire',
+  //         nbEnfants: 0,
+  //         conjoint: {  // Initialize with empty values
+  //           nom: '',
+  //           prenom: '',
+  //           profession: ''
+  //         },
+  //         codeService: '',
+  //         adresseFam: '',
+  //         tel: '',
+  //         observations: '',
+  //         age: '',
+  //         banque: '',
+  //         numeroCompte: '',
+  //         budget: '',
+  //         dp: '',
+  //         region: '', 
+  //         province: ''
+  //       });
+  //       setChildren([]);
+  //     }
+  //   } catch (error) {
+  //     toast.error('Erreur: Impossible de sauvegarder l\'employé.');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setIsLoading(true);
-  
-    try {
-      const employeeData = {
-        ...Employee,
-        grade: { id: Employee.grade },
-        conjoint: isSpouseFormVisible ? {
-          nom: Employee.conjoint?.nom,
-          prenom: Employee.conjoint?.prenom,
-          profession: Employee.conjoint?.profession
-        } : null,
-        enfants: children
-      };
-  
-      let response;
-      if (employeeId) {
-        response = await axios.put(`http://localhost:8080/Employee/${employeeId}`, employeeData);
-        toast.success('Employé mis à jour avec succès !');
-      } else {
-        response = await axios.post('http://localhost:8080/Employee', employeeData);
-        toast.success('Employé créé avec succès !');
-        setEmployee({
-          cin: '',
-          nom: '',
-          prenom: '',
-          dateNaissance: '',
-          lieuNaissance: '',
-          sexe: '',
-          adresse: '',
-          ville: '',
-          dateEntree: '',
-          avancement: '',
-          grade: '',
-          diplome: '',
-          affectation: '',
-          nivInst: '',
-          situationFam: 'Célibataire',
-          nbEnfants: 0,
-          conjoint: {  // Initialize with empty values
-            nom: '',
-            prenom: '',
-            profession: ''
-          },
-          codeService: '',
-          adresseFam: '',
-          tel: '',
-          observations: '',
-          age: '',
-          banque: '',
-          numeroCompte: '',
-          budget: '',
-          dp: '',
-          region: '', 
-          province: ''
-        });
-        setChildren([]);
-      }
-    } catch (error) {
-      toast.error('Erreur: Impossible de sauvegarder l\'employé.');
-    } finally {
-      setIsLoading(false);
-    }
+    const employeeData = {
+      ...Employee,
+      grade: { id: Employee.grade },
+      conjoint: isSpouseFormVisible
+        ? {
+            nom: Employee.conjoint?.nom,
+            prenom: Employee.conjoint?.prenom,
+            profession: Employee.conjoint?.profession,
+          }
+        : null,
+      enfants: children,
+    };
+    dispatch(saveEmployee({ employeeData, employeeId }));
   };
-
   return (
     <Container maxWidth="md">
           <ToastContainer position="bottom-right" /> {/* Add the ToastContainer */}
@@ -450,7 +491,7 @@ export default function EmployeeForm() {
           label="Province"
           name="province"
           value={Employee.province}
-          onChange={handleChange}
+          onChange={handleProvinceChange}
           select
           fullWidth
           margin="normal"

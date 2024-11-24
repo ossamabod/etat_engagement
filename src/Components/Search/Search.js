@@ -1,69 +1,86 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { searchbycriteria ,deleteEmployee} from '../../feature/Employee/EmployeeAction';
 import './Search.scss';
+import { useDispatch ,useSelector } from 'react-redux';
+
 
 export default function Search() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const dispatch= useDispatch()
+
+  const{searchResult,pagination ,isLoading,error}= useSelector((state)=>state.Employee);
+  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchResults, setSearchResults] = useState([]);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalElements: 0,
-  });
+  // const [pagination, setPagination] = useState({
+  //   currentPage: 1,
+  //   totalPages: 1,
+  //   totalElements: 0,
+  // });
 
-  const handleChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  // const handleChange = (event) => {
+  //   setSearchTerm(event.target.value);
+  // };
 
-  const handleSubmit = async (event, pageInt) => {
-    if (event && event.preventDefault) {
-      event.preventDefault();
-    }
-    console.log("pageInt in handleSubmit "+ pageInt +"searchTerm "+ searchTerm)
+  // const handleSubmit = async (event, pageInt) => {
+  //   if (event && event.preventDefault) {
+  //     event.preventDefault();
+  //   }
+  //   console.log("pageInt in handleSubmit "+ pageInt +"searchTerm "+ searchTerm)
 
-    if (searchTerm.trim() !== '') {
-      setIsLoading(true);
-      setError(null);
+  //   if (searchTerm.trim() !== '') {
+  //     setIsLoading(true);
+  //     setError(null);
 
-      try {
-        const pageNumber = pageInt || 0; // Default to 0 if pageInt is undefined
-        const response = await axios.post('http://localhost:8080/Employee/searchbycriteria', {
-          cin: searchTerm,
-          prenom: '',
-          nom: '',
-          page: pageNumber,
-          limit: 5,
-          isDeleted: false,
-          withPagination: true,
-        });
+  //     try {
+  //       const pageNumber = pageInt || 0; // Default to 0 if pageInt is undefined
+  //       const response = await axios.post('http://localhost:8080/Employee/searchbycriteria', {
+  //         cin: searchTerm,
+  //         prenom: '',
+  //         nom: '',
+  //         page: pageNumber,
+  //         limit: 5,
+  //         isDeleted: false,
+  //         withPagination: true,
+  //       });
 
-        const { content, totalPages, totalElements, page } = response.data.data;
+  //       const { content, totalPages, totalElements, page } = response.data.data;
 
-        setSearchResults(content);
-        setPagination({
-          currentPage:  response.data.data.page.number + 1, // Adjust for 0-based index
-          totalPages :response.data.data.page.totalPages,
-          totalElementsresponse: response.data.data.page.totalElementsresponse,
-        });
-        console.log(pagination.totalPages);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
+  //       setSearchResults(content);
+  //       setPagination({
+  //         currentPage:  response.data.data.page.number + 1, // Adjust for 0-based index
+  //         totalPages :response.data.data.page.totalPages,
+  //         totalElementsresponse: response.data.data.page.totalElementsresponse,
+  //       });
+  //       console.log(pagination.totalPages);
+  //     } catch (err) {
+  //       setError(err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      console.log("newPage in handlePageChange :"+newPage)
-      handleSubmit(null, newPage); // Adjust for 0-based index
+      dispatch(searchbycriteria({ searchTerm, pageNumber: newPage  }));
     }
-  };
+    };
+
+  // const handlePageChange = (newPage) => {
+  //   if (newPage >= 1 && newPage <= pagination.totalPages) {
+  //     console.log("newPage in handlePageChange :"+newPage)
+  //     handleSubmit(null, newPage); // Adjust for 0-based index
+  //   }
+  // };
+  const handleSubmit = (e)=>
+    {
+      e.preventDefault();
+      console.log("component SearchTerm :"+searchTerm)
+      dispatch(searchbycriteria({ searchTerm, pageNumber: 0 }));
+    };
+  
 
   const handleEdit = (employeeId) => {
     navigate(`/edit-employee/${employeeId}`);
@@ -75,17 +92,20 @@ export default function Search() {
 
   const handleDelete = async (employeeId) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
-      try {
-        await axios.delete(`http://localhost:8080/Employee/${employeeId}`);
-        setSearchResults((prevResults) =>
-          prevResults.filter((result) => result.employeeId !== employeeId)
-        );
-        console.log('Employee deleted successfully.');
-      } catch (error) {
-        console.error('Error deleting employee:', error);
-        setError('Failed to delete employee. Please try again.');
-      }
+      dispatch(deleteEmployee(employeeId));
     }
+    // if (window.confirm('Are you sure you want to delete this employee?')) {
+    //   try {
+    //     await axios.delete(`http://localhost:8080/Employee/${employeeId}`);
+    //     setSearchResults((prevResults) =>
+    //       prevResults.filter((result) => result.employeeId !== employeeId)
+    //     );
+    //     console.log('Employee deleted successfully.');
+    //   } catch (error) {
+    //     console.error('Error deleting employee:', error);
+    //     setError('Failed to delete employee. Please try again.');
+    //   }
+    // }
   };
 
   return (
@@ -101,7 +121,7 @@ export default function Search() {
             type="search"
             placeholder="Rechercher..."
             value={searchTerm}
-            onChange={handleChange}
+            onChange={(e) => setSearchTerm(e.target.value)}
             autoFocus
             required
           />
@@ -116,7 +136,7 @@ export default function Search() {
           {isLoading && <p>Chargement des resultats...</p>}
           {error && <p>Error: {error.message || error}</p>}
 
-          {searchResults.length > 0 && (
+          {searchResult.length > 0 && (
             <table className="custom-table table-bordered table-hover dt-responsive">
               <caption>Liste des employés:</caption>
               <thead>
@@ -128,7 +148,7 @@ export default function Search() {
                 </tr>
               </thead>
               <tbody>
-                {searchResults.map((result) => (
+                {searchResult.map((result) => (
                   <tr key={result.employeeId}>
                     <td onClick={() => handleRowClick(result.employeeId)} style={{ cursor: 'pointer' }}>
                       {result.cin}
