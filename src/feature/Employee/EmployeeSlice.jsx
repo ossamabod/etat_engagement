@@ -16,7 +16,9 @@ const initialState = {
     ville: '',
     dateEntree: '',
     avancement: '',
-    grade: '',
+    grade:{
+          libelle:''
+        },
     region: '',
     diplome: '',
     affectation: '',
@@ -32,7 +34,11 @@ const initialState = {
     numeroCompte: '',
     budget: '',
     dp: '',
-    conjoint: { nom: '', prenom: '', profession: '' },
+    conjoint: {  
+                nom: '',
+                prenom: '',
+                profession: ''
+              },
     province: '',
   },
   nbEnfants: 0,
@@ -58,28 +64,45 @@ const EmployeeSlice = createSlice({
       state.pagination = { currentPage: 1, totalPages: 1, totalElements: 0 };
     },
     updateEmployeeField: (state, action) => {
-      const { field, value } = action.payload;
-      state.Employee[field] = value;
-      if (field === 'situationFam') {
+      const { name, value } = action.payload;
+    
+      if (name.startsWith('conjoint')) {
+        const [_, field] = name.split('.'); // Extract field name after `conjoint`
+        state.Employee.conjoint = {
+          ...state.Employee.conjoint,
+          [field]: value,
+        };
+      } else if (name === 'situationFam') {
+        state.Employee.situationFam = value;
         state.isSpouseFormVisible = value !== 'Célibataire';
+      } else if (name === 'nbEnfants') {
+        const newNbEnfants = parseInt(value) || 0;
+        const childrenArray = state.children || [];
+
+        if (newNbEnfants !== childrenArray.length) {
+        
+          state.children.push(...Array(newNbEnfants - state.children.length).fill({
+            nom: '',
+            prenom: '',
+            sexe: '',
+            dateNaissance: '',
+            aCharge: false,
+          }));
+        }
+        console.log(" state.Employee.children"+ state.Employee.children)
+        state.Employee.nbEnfants = value;
+        console.log("nbEndant :"+state.Employee.nbEnfants)
+
+
+      } else {
+        state.Employee[name] = value;
       }
-      if (field === 'nbEnfants') {
-            const newNbEnfants = parseInt(value) || 0;
-            // Adjust the children array based on the number of children
-            if (newNbEnfants !== state.children.length) {
-              state.children= (Array(newNbEnfants).fill().map(() => ({
-                nom: '',
-                prenom: '',
-                sexe: '',
-                dateNaissance: '',
-                aCharge: false
-              })));
-            }
-          }
     },
+    
     updateChildren: (state, action) => {
-      state.children = action.payload;
+      state.children = [...action.payload];
     },
+    
     setEmployee: (state, action) => {
       state.Employee = action.payload;
     },
@@ -155,9 +178,41 @@ const EmployeeSlice = createSlice({
       .addCase(saveEmployee.fulfilled, (state, action) => {
         state.isLoading = false;
         // Update employees or add to the list
-        state.employees = state.employees.map((emp) =>
-          emp.id === action.payload.id ? action.payload : emp
-        );
+              state.Employee=({
+          cin: '',
+          nom: '',
+          prenom: '',
+          dateNaissance: '',
+          lieuNaissance: '',
+          sexe: '',
+          adresse: '',
+          ville: '',
+          dateEntree: '',
+          avancement: '',
+          grade: '',
+          diplome: '',
+          affectation: '',
+          nivInst: '',
+          situationFam: 'Célibataire',
+          nbEnfants: 0,
+          conjoint: {  // Initialize with empty values
+            nom: '',
+            prenom: '',
+            profession: ''
+          },
+          codeService: '',
+          adresseFam: '',
+          tel: '',
+          observations: '',
+          age: '',
+          banque: '',
+          numeroCompte: '',
+          budget: '',
+          dp: '',
+          region: '', 
+          province: ''
+        });
+        state.children=[];
       })
       .addCase(saveEmployee.rejected, (state, action) => {
         state.isLoading = false;
