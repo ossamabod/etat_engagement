@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify'; // Import toast library
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import { fetchEmployee,saveEmployee } from '../../feature/Employee/EmployeeAction';
-import { fetchGrades } from '../../feature/Grade/GradeAction';
+import { fetchGrades } from '../../feature/Employee/EmployeeAction';
 import { useDispatch ,useSelector } from 'react-redux';
 
 
@@ -16,14 +16,6 @@ import {
   Box,
   Alert,
   CircularProgress,
-  
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper
 } from '@mui/material';
 import { updateEmployeeField , updateChildren, setEmployee} from '../../feature/Employee/EmployeeSlice';
 
@@ -81,7 +73,7 @@ const regionsData = {
 export default function EmployeeForm() {
   
   const dispatch= useDispatch();
-  const{Employee,isSpouseFormVisible,children,message,grades ,isLoading}= useSelector((state)=>state.Employee);
+  const{Employee,isSpouseFormVisible,children,message,Grades ,isLoading}= useSelector((state)=>state.Employee);
 
   const { employeeId } = useParams(); 
 
@@ -104,20 +96,20 @@ export default function EmployeeForm() {
     dispatch(updateChildren(updatedChildren));
   };
 
-  const handleRegionChange = (event) => {
-    setEmployee(prevEmployee => ({
-      ...prevEmployee,
-      region: event.target.value,
-      province: '' 
-    }));
-  };
+  // const handleRegionChange = (event) => {
+  //   setEmployee(prevEmployee => ({
+  //     ...prevEmployee,
+  //     region: event.target.value,
+  //     province: '' 
+  //   }));
+  // };
 
-  const handleProvinceChange = (event) => {
-    setEmployee(prevEmployee => ({
-      ...prevEmployee,
-      province: event.target.value
-    }));
-  };
+  // const handleProvinceChange = (event) => {
+  //   setEmployee(prevEmployee => ({
+  //     ...prevEmployee,
+  //     province: event.target.value
+  //   }));
+  // };
 
   
   const handleSubmit = (event) => {
@@ -229,7 +221,7 @@ export default function EmployeeForm() {
               '.MuiOutlinedInput-root': { backgroundColor: 'white' },
             }}
           >
-            {grades.map((grade) => (
+            {Grades.map((grade) => (
               <MenuItem key={grade.id} value={grade.id}>
                 {grade.libelle}
               </MenuItem>

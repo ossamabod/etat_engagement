@@ -14,28 +14,35 @@ import {
   TextField,
   TablePagination,
 } from '@mui/material';
-import { useDispatch , useSelector } from 'react-redux';
-import { fetchingGrades } from '../../feature/Grade/GradeAction';
 
 export default function GradePage() {
-  const {Grades, Grade}=useSelector((state)=>state.Grade )
-  const navigate = useNavigate();
-  const dispatch=useDispatch();
+  const [grades, setGrades] = useState([]); // Holds all grades fetched from the server
   const [filteredGrades, setFilteredGrades] = useState([]); // Grades filtered by search
   const [searchTerm, setSearchTerm] = useState(''); // Search input
   const [page, setPage] = useState(0); // Pagination: current page
   const [rowsPerPage, setRowsPerPage] = useState(8); // Pagination: rows per page
+  const navigate = useNavigate();
+
 
   // Fetch all grades on component mount
   useEffect(() => {
-        dispatch(fetchingGrades);
-        console.log("grades are fetched:"+Grades.length);
+    const fetchGrades = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/grades/getGrade', {
+          params: { isDeleted: false },
+        });
+        const gradesData = response.data.data || [];
+        setGrades(gradesData);
+        setFilteredGrades(gradesData);
+      } catch (error) {
+        console.error('Error fetching grades:', error);
+        setGrades([]); // Clear in case of error
+        setFilteredGrades([]);
+      }
+    };
+
+    fetchGrades();
   }, []);
-  useEffect(() => {
-    // Set filtered grades when Grades state updates
-    setFilteredGrades(Grades);
-  }, [Grades]);
-  
 
   // Handle search input change
   const handleSearchChange = (event) => {
@@ -45,9 +52,8 @@ export default function GradePage() {
     setPage(0); // Reset to first page on new search
 
     // Filter grades by 'libelle' based on search term
-    const filtered = Grades.filter((Grade) =>
-      console.log("Grades are : " + Grade.libelle),
-      Grade.libelle.toLowerCase().includes(searchValue.toLowerCase())
+    const filtered = grades.filter((grade) =>
+      grade.libelle.toLowerCase().includes(searchValue.toLowerCase())
     );
     setFilteredGrades(filtered);
   };
@@ -99,18 +105,18 @@ export default function GradePage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredGrades.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((Grade) => (
-                <TableRow key={Grade.id} sx={{ '&:hover': { backgroundColor: 'var(--primary-color-light)' } }}>
-                  <TableCell>{Grade.code}</TableCell>
-                  <TableCell>{Grade.libelle}</TableCell>
-                  <TableCell>{Grade.niveau}</TableCell>
-                  <TableCell>{Grade.traitementBase}</TableCell>
+              {filteredGrades.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((grade) => (
+                <TableRow key={grade.id} sx={{ '&:hover': { backgroundColor: 'var(--primary-color-light)' } }}>
+                  <TableCell>{grade.code}</TableCell>
+                  <TableCell>{grade.libelle}</TableCell>
+                  <TableCell>{grade.niveau}</TableCell>
+                  <TableCell>{grade.traitementBase}</TableCell>
                   <TableCell>
                     <Button
                       variant="contained"
                       size="small"
                       sx={{ backgroundColor: 'var(--primary-color)', color: 'var(--sidebar-color)', mr: 1 }}
-                      onClick={() => handleEdit(Grade.id)}
+                      onClick={() => handleEdit(grade.id)}
                     >
                       Editer
                     </Button>

@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { searchbycriteria,deleteEmployee ,fetchEmployee ,saveEmployee} from "./EmployeeAction";
-import { fetchGrades } from "../Grade/GradeAction";
+import { fetchGrades,searchbycriteria,deleteEmployee ,fetchEmployee ,saveEmployee} from "./EmployeeAction";
 import { format } from 'date-fns';
 
 
@@ -42,7 +41,7 @@ const initialState = {
     province: '',
   },
   nbEnfants: 0,
-  grades: [],
+  Grades: [],
   children: [],
   isSpouseFormVisible: false,
   searchResult: [],
@@ -166,7 +165,7 @@ const EmployeeSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchGrades.fulfilled, (state, action) => {
-        state.grades = action.payload;
+        state.Grades = action.payload;
       })
       .addCase(fetchGrades.rejected, (state, action) => {
         state.error = action.payload;
